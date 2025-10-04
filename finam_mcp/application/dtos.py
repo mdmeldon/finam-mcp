@@ -395,7 +395,7 @@ class OrderBookRespDTO(BaseModel):
 TDetail = TypeVar("TDetail")
 
 
-class OkResponse(BaseModel, Generic[TItem]):
+class OkResponse(BaseModel, Generic[TDetail]):
     code: int = 1
     message: str | None = None
     details: TDetail
