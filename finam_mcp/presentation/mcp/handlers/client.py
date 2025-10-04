@@ -176,11 +176,11 @@ async def exchanges() -> ExchangesRespDTO:
         return resp
 
 
-async def get_asset(symbol: str) -> AssetDTO:
+async def get_asset(symbol: str, mic: str = "MISX") -> AssetDTO:
     """Информация по инструменту symbol."""
     cfg = _get_config()
     async with _build_client() as client:
-        resp = await client.get_asset(cfg.ACCOUNT_ID, symbol)
+        resp = await client.get_asset(cfg.ACCOUNT_ID, symbol, mic)
         return resp
 
 

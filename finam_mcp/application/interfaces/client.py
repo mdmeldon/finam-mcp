@@ -107,7 +107,7 @@ class IClient(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    async def get_asset(self, account_id: str, symbol: str) -> AssetDTO:
+    async def get_asset(self, account_id: str, symbol: str, mic: str) -> AssetDTO:
         """
         [GET] https://api.finam.ru/v1/assets/{symbol}
         Получение информации по конкретному инструменту
