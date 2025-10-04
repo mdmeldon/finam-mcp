@@ -1,7 +1,7 @@
 import datetime
 from collections.abc import Iterator
 from enum import Enum, auto
-from typing import Any, TypeVar, Generic
+from typing import Any, TypeVar, Generic, Literal
 
 from pydantic import BaseModel, Field, RootModel
 
@@ -249,35 +249,35 @@ class OrderType(str, Enum):
     ORDER_TYPE_MULTI_LEG = "ORDER_TYPE_MULTI_LEG"
 
 
-class Side(Enum):
-    SIDE_UNSPECIFIED = 0
-    SIDE_BUY = 1
-    SIDE_SELL = 2
+class Side(str, Enum):
+    SIDE_UNSPECIFIED = auto()
+    SIDE_BUY = auto()
+    SIDE_SELL = auto()
 
 
-class StopCondition(Enum):
-    STOP_CONDITION_UNSPECIFIED = 0
-    STOP_CONDITION_LAST_UP = 1
-    STOP_CONDITION_LAST_DOWN = 2
+class StopCondition(str, Enum):
+    STOP_CONDITION_UNSPECIFIED = auto()
+    STOP_CONDITION_LAST_UP = auto()
+    STOP_CONDITION_LAST_DOWN = auto()
 
 
-class TimeInForce(Enum):
-    TIME_IN_FORCE_UNSPECIFIED = 0
-    TIME_IN_FORCE_DAY = 1
-    TIME_IN_FORCE_GOOD_TILL_CANCEL = 2
-    TIME_IN_FORCE_GOOD_TILL_CROSSING = 3
-    TIME_IN_FORCE_EXT = 4
-    TIME_IN_FORCE_ON_OPEN = 5
-    TIME_IN_FORCE_ON_CLOSE = 6
-    TIME_IN_FORCE_IOC = 7
-    TIME_IN_FORCE_FOK = 8
+class TimeInForce(str, Enum):
+    TIME_IN_FORCE_UNSPECIFIED = auto()
+    TIME_IN_FORCE_DAY = auto()
+    TIME_IN_FORCE_GOOD_TILL_CANCEL = auto()
+    TIME_IN_FORCE_GOOD_TILL_CROSSING = auto()
+    TIME_IN_FORCE_EXT = auto()
+    TIME_IN_FORCE_ON_OPEN = auto()
+    TIME_IN_FORCE_ON_CLOSE = auto()
+    TIME_IN_FORCE_IOC = auto()
+    TIME_IN_FORCE_FOK = auto()
 
 
 class ValidBefore(Enum):
-    VALID_BEFORE_UNSPECIFIED = 0
-    VALID_BEFORE_END_OF_DAY = 1
-    VALID_BEFORE_GOOD_TILL_CANCEL = 2
-    VALID_BEFORE_GOOD_TILL_DATE = 3
+    VALID_BEFORE_UNSPECIFIED = auto()
+    VALID_BEFORE_END_OF_DAY = auto()
+    VALID_BEFORE_GOOD_TILL_CANCEL = auto()
+    VALID_BEFORE_GOOD_TILL_DATE = auto()
 
 
 class LegDTO(BaseModel):
@@ -396,3 +396,5 @@ class OkResponse(BaseModel, Generic[TItem]):
     code: int = 1
     message: str | None = None
     details: TDetail
+    endpoint: str
+    method: Literal["GET", "POST", "DELETE"]

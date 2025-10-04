@@ -168,31 +168,23 @@ class Client(IClient):
         return AccountDTO.model_validate(data)
 
     async def trades(self, account_id: str, start_time: datetime.datetime,
-                     end_time: datetime.datetime) -> TradesRespDTO:
+                     end_time: datetime.datetime, limit: int = 50) -> TradesRespDTO:
         params = {
             "interval.start_time": start_time,
             "interval.end_time": end_time,
+            "limit": limit
         }
         data = await self._request("GET", f"/v1/accounts/{account_id}/trades", params=params)
         return TradesRespDTO.model_validate(data)
 
-    async def transactions(self) -> TransactionsRespDTO:
-        # В интерфейсе не передаётся account_id, используем первый доступный из токена
-        if not self._account_ids:
-            await self._ensure_jwt()
-            # Попробуем получить детали, если ещё не получали
-            if not self._account_ids and self._jwt_token:
-                try:
-                    details = await self.token_details(self._jwt_token)
-                    self._account_ids = [str(x)
-                                         for x in (details.account_ids or [])]
-                except Exception:
-                    pass
-        if not self._account_ids:
-            raise ValueError(
-                "Не удалось определить account_id для запроса транзакций")
-        account_id = self._account_ids[0]
-        data = await self._request("GET", f"/v1/accounts/{account_id}/transactions")
+    async def transactions(self, account_id: str, start_time: datetime.datetime, end_time: datetime.datetime, limit: int = 50) -> TransactionsRespDTO:
+        params = {
+            "interval.start_time": start_time,
+            "interval.end_time": end_time,
+            "limit": limit
+        }
+
+        data = await self._request("GET", f"/v1/accounts/{account_id}/transactions", params=params)
         return TransactionsRespDTO.model_validate(data)
 
     async def assets(self) -> AssetsRespDTO:
@@ -207,10 +199,10 @@ class Client(IClient):
         data = await self._request("GET", "/v1/exchanges")
         return ExchangesRespDTO.model_validate(data)
 
-    async def get_asset(self, account_id: str, symbol: str, mic: str) -> AssetDTO:
+    async def get_asset(self, account_id: str, symbol: str) -> AssetDTO:
         # Параметр account_id оставим как query, если API его учитывает
         params = {"account_id": account_id}
-        data = await self._request("GET", f"/v1/assets/{symbol}@{mic}", params=params)
+        data = await self._request("GET", f"/v1/assets/{symbol}", params=params)
         return AssetDTO.model_validate(data)
 
     async def get_asset_params(self, account_id: str, symbol: str) -> AssetParamsDTO:

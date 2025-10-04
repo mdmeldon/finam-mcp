@@ -48,7 +48,8 @@ class IClient(ABC):
         self,
         account_id: str,
         start_time: datetime.datetime,
-        end_time: datetime.datetime
+        end_time: datetime.datetime,
+        limit: int = 50
     ) -> TradesRespDTO:
         """
         [GET] https://api.finam.ru/v1/accounts/{account_id}/trades
@@ -57,17 +58,22 @@ class IClient(ABC):
         :param account_id:
         :param start_time:
         :param end_time:
+        :param limit:
         :return:
         """
 
         raise NotImplementedError()
 
     @abstractmethod
-    async def transactions(self) -> TransactionsRespDTO:
+    async def transactions(self, account_id: str, start_time: datetime.datetime, end_time: datetime.datetime, limit: int = 50) -> TransactionsRespDTO:
         """
         [GET] https://api.finam.ru/v1/accounts/{account_id}/transactions
         Получение списка транзакций аккаунта
 
+        :param account_id:
+        :param limit:
+        :param start_time:
+        :param end_time:
         :return:
         """
 
@@ -107,7 +113,7 @@ class IClient(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    async def get_asset(self, account_id: str, symbol: str, mic: str) -> AssetDTO:
+    async def get_asset(self, account_id: str, symbol: str) -> AssetDTO:
         """
         [GET] https://api.finam.ru/v1/assets/{symbol}
         Получение информации по конкретному инструменту
@@ -279,13 +285,14 @@ class IClient(ABC):
     @abstractmethod
     async def order_book(
         self,
-        symbol: str
+        symbol: str,
     ) -> OrderBookRespDTO:
         """
         [GET] https://api.finam.ru/v1/instruments/{symbol}/orderbook
         Получение текущего стакана по инструменту
 
         :param symbol:  Символ инструмента
+        :param mic:
         :return: OrderBookRespDTO
         """
         raise NotImplementedError()
