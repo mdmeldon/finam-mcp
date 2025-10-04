@@ -356,7 +356,7 @@ class QuoteDTO(BaseModel):
     low: ValueDTO = Field(description="Минимальная цена.Дневная")
     close: ValueDTO = Field(description="Цена закрытия.Дневная")
     change: ValueDTO = Field(description="Изменение цены(last минус close)")
-    option: QuoteOption = Field(description="Информация об опционе")
+    option: QuoteOption | None = Field(default=None, description="Информация об опционе")
 
 
 class LastQuoteDTO(BaseModel):
