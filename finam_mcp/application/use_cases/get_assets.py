@@ -15,7 +15,7 @@ class GetAssets:
 
         def generate():
             i = offset
-            while i < limit+offset:
+            while sorted_assets and i < limit+offset:
                 if not (asset := self._filter(sorted_assets.pop(), name=name, ticker=ticker)):
                     continue
                 if i >= offset:
