@@ -4,11 +4,11 @@ from typing import Literal, Any
 
 import aiohttp
 
-from src.finam_mcp.application.dtos import OrderBookRespDTO, LatestTradesDTO, LastQuoteDTO, TimeFrame, BarsRespDTO, Side, \
+from finam_mcp.application.dtos import OrderBookRespDTO, LatestTradesDTO, LastQuoteDTO, TimeFrame, BarsRespDTO, Side, \
     OrderType, TimeInForce, StopCondition, LegDTO, ValidBefore, OrderDTO, GetOrdersDTO, SymbolScheduleDTO, \
     OptionsChainDTO, AssetParamsDTO, AssetDTO, ExchangesRespDTO, ClockDTO, AssetsRespDTO, TransactionsRespDTO, \
     TradesRespDTO, AccountDTO, TokenDetailsDTO, AuthRespDTO
-from src.finam_mcp.application.interfaces.client import IClient
+from finam_mcp.application.interfaces.client import IClient
 
 
 class Client(IClient):

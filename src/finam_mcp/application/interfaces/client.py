@@ -1,7 +1,7 @@
 import datetime
 from abc import ABC, abstractmethod
 
-from src.finam_mcp.application.dtos import AuthRespDTO, TokenDetailsDTO, AccountDTO, TradesRespDTO, TransactionsRespDTO, \
+from finam_mcp.application.dtos import AuthRespDTO, TokenDetailsDTO, AccountDTO, TradesRespDTO, TransactionsRespDTO, \
     AssetsRespDTO, ClockDTO, ExchangesRespDTO, AssetDTO, AssetParamsDTO, OptionsChainDTO, SymbolScheduleDTO, \
     OrderDTO, GetOrdersDTO, Side, OrderType, TimeInForce, StopCondition, LegDTO, ValidBefore, TimeFrame, \
     BarsRespDTO, LastQuoteDTO, LatestTradesDTO, OrderBookRespDTO

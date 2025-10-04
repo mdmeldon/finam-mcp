@@ -6,7 +6,7 @@ from structlog.processors import (
     CallsiteParameterAdder,
 )
 
-from src.finam_mcp.configs import LoggerConfig
+from finam_mcp.configs import LoggerConfig
 
 from .processors import get_render_processor
 
