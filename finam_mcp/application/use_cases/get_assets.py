@@ -11,11 +11,21 @@ class GetAssets:
     async def __call__(self, ticker: str | None = None, name: str | None = None, limit: int = 50, offset: int = 0) -> AssetListDTO:
         assets = await self._client.assets()
 
-        filtered_assets = filter(partial(self._filter, ticker=ticker, name=name), assets.assets)
-        sorted_assets = sorted(filtered_assets, key=lambda asset: asset.id)
+        sorted_assets = sorted(assets.assets, key=lambda asset: asset.id)
 
-        return AssetListDTO.model_validate(sorted_assets[offset:limit+offset])
+        def generate():
+            i = offset
+            while i < limit+offset:
+                if not (asset := self._filter(sorted_assets.pop(), name=name, ticker=ticker)):
+                    continue
+                if i >= offset:
+                    yield asset
+                i += 1
 
-    def _filter(self, asset: AssetDTO, ticker: str | None = None, name: str | None = None) -> bool:
-        return (not name or name.lower() in asset.name.lower()) and (not ticker or ticker.lower() in asset.ticker.lower())
+        return AssetListDTO.model_validate(generate())
+
+    @staticmethod
+    def _filter(asset: AssetDTO, ticker: str | None = None, name: str | None = None) -> AssetDTO | None:
+        if (not name or name.lower() in asset.name.lower()) and (not ticker or ticker.lower() in asset.ticker.lower()):
+            return asset
 

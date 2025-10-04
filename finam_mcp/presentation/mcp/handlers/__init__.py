@@ -8,7 +8,7 @@ from .client import (
     get_account,
     trades,
     transactions,
-    assets,
+    get_assets,
     clock,
     exchanges,
     get_asset,
@@ -41,7 +41,7 @@ def init_tools(app: FastMCP, finam_config: FinamConfig) -> None:
                  title="Get account transactions")
 
     # Reference data
-    app.add_tool(assets, name="assets", title="List assets")
+    app.add_tool(get_assets, name="assets", title="List assets")
     app.add_tool(clock, name="clock", title="Get server time")
     app.add_tool(exchanges, name="exchanges", title="List exchanges")
     app.add_tool(get_asset, name="get_asset", title="Get asset by symbol")

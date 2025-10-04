@@ -15,6 +15,9 @@ class GenericListDTO(RootModel[TItem]):
     def __iter__(self) -> Iterator[TItem]:
         yield from self.root
 
+    def __len__(self) -> int:
+        return len(self.root)
+
 
 class FinamApiErrorMessageDTO(BaseModel):
     code: int
@@ -113,11 +116,21 @@ class AssetDTO(BaseModel):
     quote_currency: str
 
 
-AssetListDTO = GenericListDTO[AssetDTO]
+class AssetInfoDTO(BaseModel):
+    symbol: str = Field(examples=["PTON@XNGS"])
+    id: str = Field(examples=["910354"])
+    ticker: str = Field(examples=["PTON"])
+    mic: str = Field(examples=["XNGS"])
+    isin: str = Field(examples=["US70614W1009"])
+    type: str = Field(examples=["EQUITIES"])
+    name: str = Field(examples=["Peloton Interactive, Inc."])
+
+
+AssetListDTO = GenericListDTO[AssetInfoDTO]
 
 
 class AssetsRespDTO(BaseModel):
-    assets: list[AssetDTO]
+    assets: list[AssetInfoDTO]
 
 
 class ClockDTO(BaseModel):
