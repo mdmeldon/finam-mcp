@@ -13,9 +13,6 @@ def create_mcp_app(cfg: Config):
         port=cfg.SERVER.PORT,
     )
 
-    # Передаем конфигурацию Finam в handlers
     init_tools(mcp, cfg.FINAM)
-
-    # mcp.run(transport="streamable-http")
 
     return mcp

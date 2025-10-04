@@ -40,8 +40,9 @@ from finam_mcp.application.dtos import (
     BarsRespDTO,
     LastQuoteDTO,
     LatestTradesDTO,
-    OrderBookRespDTO,
+    OrderBookRespDTO, AssetListDTO, OkResponse,
 )
+from finam_mcp.application.use_cases.get_assets import GetAssets
 from finam_mcp.infrastructure.core.client import Client
 from finam_mcp.configs.server import FinamConfig
 
@@ -154,11 +155,11 @@ async def transactions() -> TransactionsRespDTO:
 # Reference data
 #
 
-async def assets() -> AssetsRespDTO:
-    """Список доступных инструментов."""
+async def assets(ticker: str | None = None, name: str | None = None, limit: int = 50, offset: int = 0) -> OkResponse[AssetListDTO]:
+    """Список доступных инструментов, доступна фильтрация по ticker, name и пагинация."""
     async with _build_client() as client:
-        resp = await client.assets()
-        return resp
+        details = GetAssets(client)(ticker, name, limit, offset)
+        return OkResponse(details=details)
 
 
 async def clock() -> ClockDTO:

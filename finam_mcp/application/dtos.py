@@ -1,8 +1,19 @@
 import datetime
+from collections.abc import Iterator
 from enum import Enum, auto
-from typing import Any
+from typing import Any, TypeVar, Generic
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, RootModel
+
+
+TItem = TypeVar("TItem")
+
+
+class GenericListDTO(RootModel[TItem]):
+    root: list[TItem]
+
+    def __iter__(self) -> Iterator[TItem]:
+        yield from self.root
 
 
 class FinamApiErrorMessageDTO(BaseModel):
@@ -102,8 +113,11 @@ class AssetDTO(BaseModel):
     quote_currency: str
 
 
+AssetListDTO = GenericListDTO[AssetDTO]
+
+
 class AssetsRespDTO(BaseModel):
-    assets: list[Any]
+    assets: list[AssetDTO]
 
 
 class ClockDTO(BaseModel):
@@ -360,3 +374,12 @@ class OrderBookDTO(BaseModel):
 class OrderBookRespDTO(BaseModel):
     symbol: str = Field(description="Символ инструмента")
     orderbook: OrderBookDTO
+
+
+TDetail = TypeVar("TDetail")
+
+
+class OkResponse(BaseModel, Generic[TItem]):
+    code: int = 1
+    message: str | None = None
+    details: TDetail
