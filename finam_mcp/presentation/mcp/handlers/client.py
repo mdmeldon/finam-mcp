@@ -158,7 +158,7 @@ async def transactions() -> TransactionsRespDTO:
 async def assets(ticker: str | None = None, name: str | None = None, limit: int = 50, offset: int = 0) -> OkResponse[AssetListDTO]:
     """Список доступных инструментов, доступна фильтрация по ticker, name и пагинация."""
     async with _build_client() as client:
-        details = await GetAssets(client)(ticker, name, limit, offset)
+        details = await GetAssets(client)(ticker=ticker, name=name, limit=limit, offset=offset)
         return OkResponse(details=details)
 
 
