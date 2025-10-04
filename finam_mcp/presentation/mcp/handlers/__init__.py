@@ -19,7 +19,7 @@ from .client import (
     bars,
     last_quote,
     latest_trades,
-    order_book,
+    order_book, get_asset_types,
 )
 
 
@@ -56,3 +56,4 @@ def init_tools(app: FastMCP) -> None:
     app.add_tool(latest_trades, name="latest_trades",
                  title="Get latest trades")
     app.add_tool(order_book, name="order_book", title="Get order book")
+    app.add_tool(get_asset_types, name="get_asset_types", title="Get asset types")

@@ -62,7 +62,7 @@ from finam_mcp.application.dtos import (
     BarsRespDTO,
     LastQuoteDTO,
     LatestTradesDTO,
-    OrderBookRespDTO, AssetListDTO, OkResponse,
+    OrderBookRespDTO, AssetListDTO, OkResponse, AssetType,
 )
 from finam_mcp.application.use_cases.get_assets import GetAssets
 from finam_mcp.infrastructure.core.client import Client
@@ -184,12 +184,14 @@ async def transactions(start_time: str, end_time: str, limit: int) -> Transactio
 # Reference data
 #
 
-async def get_assets(ticker: str | None = None, name: str | None = None, limit: int = 50, offset: int = 0) -> OkResponse[AssetListDTO]:
+async def get_assets(ticker: str | None = None, name: str | None = None, type: AssetType | None = None, limit: int = 50, offset: int = 0) -> OkResponse[AssetListDTO]:
     """Список инструментов с фильтрами и пагинацией.
 
     :param ticker: Фильтр по тикеру, например "AAPL"
     :type ticker: str | None
     :param name: Фильтр по названию, например "Apple"
+    :type name: str | None
+    :param type: Фильтра по типу инструмента, например "EQUITIES"
     :type name: str | None
     :param limit: Размер страницы (по умолчанию 50)
     :type limit: int
@@ -202,7 +204,7 @@ async def get_assets(ticker: str | None = None, name: str | None = None, limit: 
         get_assets(ticker="AAPL", limit=20)
     """
     async with _build_client() as client:
-        details = await GetAssets(client)(ticker=ticker, name=name, limit=limit, offset=offset)
+        details = await GetAssets(client)(ticker=ticker, name=name, type=type, limit=limit, offset=offset)
         return OkResponse(details=details, endpoint="https://api.finam.ru/v1/assets", method="GET")
 
 
@@ -475,3 +477,8 @@ async def order_book(symbol: str) -> OkResponse[OrderBookRespDTO]:
     async with _build_client() as client:
         details = await client.order_book(symbol)
         return OkResponse(details=details, endpoint="https://api.finam.ru/v1/instruments/{symbol}/orderbook", method="GET")
+
+
+def get_asset_types() -> OkResponse[list[str]]:
+    details = ["EQUITIES", "FUNDS", "FUTURES", "BONDS", "OTHER", "CURRENCIES", "SWAPS", "INDICES", "SPREADS"]
+    return OkResponse(details=details)

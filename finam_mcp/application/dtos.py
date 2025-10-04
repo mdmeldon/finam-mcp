@@ -1,7 +1,7 @@
 import datetime
 from collections.abc import Iterator
 from enum import Enum, auto
-from typing import Any, TypeVar, Generic, Literal
+from typing import Any, TypeVar, Generic, Literal, Type
 
 from pydantic import BaseModel, Field, RootModel
 
@@ -102,13 +102,16 @@ class TransactionsRespDTO(BaseModel):
     transactions: list[TransactionDTO]
 
 
+AssetType: Type[str] = Literal["EQUITIES", "FUNDS", "FUTURES", "BONDS", "OTHER", "CURRENCIES", "SWAPS", "INDICES", "SPREADS"]
+
+
 class AssetDTO(BaseModel):
     board: str
     id: str
     ticker: str
     mic: str
     isin: str
-    type: str
+    type: AssetType
     name: str
     lot_size: ValueDTO
     decimals: int
@@ -122,7 +125,7 @@ class AssetInfoDTO(BaseModel):
     ticker: str = Field(examples=["PTON"])
     mic: str = Field(examples=["XNGS"])
     isin: str = Field(examples=["US70614W1009"])
-    type: str = Field(examples=["EQUITIES"])
+    type: AssetType = Field(examples=["EQUITIES"])
     name: str = Field(examples=["Peloton Interactive, Inc."])
 
 
@@ -396,5 +399,5 @@ class OkResponse(BaseModel, Generic[TItem]):
     code: int = 1
     message: str | None = None
     details: TDetail
-    endpoint: str
-    method: Literal["GET", "POST", "DELETE"]
+    endpoint: str | None = None
+    method: Literal["GET", "POST", "DELETE"] | None = None

@@ -1,6 +1,6 @@
 [project]
 name = "finam-mcp"
-version = "1.0.20"
+version = "1.0.21"
 description = ""
 authors = [
     {name = "Your Name",email = "you@example.com"}
