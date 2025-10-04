@@ -1,7 +1,7 @@
 from dishka import Provider, provide, Scope
 from pydantic_settings import BaseSettings
 
-from src.infrastructure.core.client import Client
+from src.finam_mcp.infrastructure.core.client import Client
 
 
 class FinamApiClientProvider(Provider):

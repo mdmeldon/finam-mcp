@@ -13,7 +13,7 @@ from typing import Any, Dict, Optional
 
 import aiohttp
 
-from src.application.dtos import (
+from src.finam_mcp.application.dtos import (
     Side,
     OrderType,
     TimeInForce,
@@ -41,7 +41,7 @@ from src.application.dtos import (
     LatestTradesDTO,
     OrderBookRespDTO,
 )
-from src.infrastructure.core.client import Client
+from src.finam_mcp.infrastructure.core.client import Client
 
 
 def _parse_dt(value: str) -> datetime.datetime:

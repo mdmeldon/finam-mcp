@@ -1,5 +1,5 @@
 [project]
-name = "finam-api"
+name = "finam-mcp"
 version = "0.1.0"
 description = ""
 authors = [
@@ -15,3 +15,10 @@ dependencies = [
     "orjson (>=3.11.3,<4.0.0)",
     "dishka>=1.7.2",
 ]
+
+[project.scripts]
+finam_mcp = "finam_mcp:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

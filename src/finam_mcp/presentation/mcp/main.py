@@ -1,7 +1,7 @@
 from mcp.server.fastmcp import FastMCP
 
-from src.configs import Config
-from src.presentation.mcp.handlers import init_tools
+from src.finam_mcp.configs import Config
+from src.finam_mcp.presentation.mcp.handlers import init_tools
 
 
 def create_mcp_app():
