@@ -184,11 +184,15 @@ async def transactions(start_time: str, end_time: str, limit: int) -> Transactio
 # Reference data
 #
 
-async def get_assets(ticker: str | None = None, name: str | None = None, type: AssetType | None = None, limit: int = 50, offset: int = 0) -> OkResponse[AssetListDTO]:
+async def get_assets(symbol: str | None = None, ticker: str | None = None, mic: str | None = None,  name: str | None = None, type: AssetType | None = None, limit: int = 50, offset: int = 0) -> OkResponse[AssetListDTO]:
     """Список инструментов с фильтрами и пагинацией.
 
+    :param symbol: Фильтр по символу, например "AAPL@XNGS"
+    :type symbol: str | None
     :param ticker: Фильтр по тикеру, например "AAPL"
     :type ticker: str | None
+    :param mic: Фильтр по бирже, например "XNGS"
+    :type mic: str | None
     :param name: Фильтр по названию, например "Apple"
     :type name: str | None
     :param type: Фильтра по типу инструмента, например "EQUITIES"
@@ -204,7 +208,7 @@ async def get_assets(ticker: str | None = None, name: str | None = None, type: A
         get_assets(ticker="AAPL", limit=20)
     """
     async with _build_client() as client:
-        details = await GetAssets(client)(ticker=ticker, name=name, type=type, limit=limit, offset=offset)
+        details = await GetAssets(client)(symbol=symbol, ticker=ticker, mic=mic, name=name, type=type, limit=limit, offset=offset)
         return OkResponse(details=details, endpoint="https://api.finam.ru/v1/assets", method="GET")
 
 
@@ -480,5 +484,33 @@ async def order_book(symbol: str) -> OkResponse[OrderBookRespDTO]:
 
 
 def get_asset_types() -> OkResponse[list[str]]:
+    """Справочник поддерживаемых типов инструментов (локальный список).
+
+    Возвращает перечень строковых идентификаторов типов инструментов, совместимых
+    с фильтром `type` в инструментах получения списка активов.
+
+    :returns: Список строковых идентификаторов типов (например, "EQUITIES", "FUNDS")
+    :rtype: OkResponse[list[str]]
+
+    Пример:
+        get_asset_types()
+    """
     details = ["EQUITIES", "FUNDS", "FUTURES", "BONDS", "OTHER", "CURRENCIES", "SWAPS", "INDICES", "SPREADS"]
+    return OkResponse(details=details)
+
+
+def get_mic_list() -> OkResponse[list[str]]:
+    """Справочник распространённых кодов MIC бирж (локальный список).
+
+    Список может использоваться для построения символов формата "TICKER@MIC"
+    и для фильтрации по бирже. Для полного перечня и актуальности
+    ориентируйтесь на официальную документацию Finam REST.
+
+    :returns: Список строковых кодов MIC (например, "XNGS", "MISX")
+    :rtype: OkResponse[list[str]]
+
+    Пример:
+        get_mic_list()
+    """
+    details = ['_EURB', 'XNCM', 'RTSX', '_NPRO', 'XNMS', 'XLON', 'XNYM', 'XSHG', 'XPAR', 'XNGS', 'PINX', 'XAMS', 'XETR', 'XNYS', '_MMBZ', 'XSHE', 'MISX', 'XBRU', 'XCEC', 'BATS', 'XNAS', 'XCBT', '_CMF', '_SPBZ', '_TRES', 'XLOM', '_CRYP', 'ARCX', 'XASE', 'XMAD', '_SCI', 'XGAT', 'XTKS', 'XHKG', 'XCME']
     return OkResponse(details=details)
