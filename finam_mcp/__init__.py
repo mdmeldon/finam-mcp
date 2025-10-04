@@ -4,5 +4,5 @@ from .presentation import create_mcp_app
 def main():
     cfg = Config()
 
-    mcp = create_mcp_app(cfg.SERVER)
+    mcp = create_mcp_app(cfg)
     mcp.run()
