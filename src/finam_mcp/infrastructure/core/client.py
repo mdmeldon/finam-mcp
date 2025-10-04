@@ -91,7 +91,8 @@ class Client(IClient):
                 url=url,
                 params=self._encode_params(params),
                 json=json,
-                headers={"Authorization": self._jwt_token} if self._jwt_token else None,
+                headers={
+                    "Authorization": self._jwt_token} if self._jwt_token else None,
             )
 
         # Ошибки HTTP
@@ -183,11 +184,13 @@ class Client(IClient):
             if not self._account_ids and self._jwt_token:
                 try:
                     details = await self.token_details(self._jwt_token)
-                    self._account_ids = [str(x) for x in (details.account_ids or [])]
+                    self._account_ids = [str(x)
+                                         for x in (details.account_ids or [])]
                 except Exception:
                     pass
         if not self._account_ids:
-            raise ValueError("Не удалось определить account_id для запроса транзакций")
+            raise ValueError(
+                "Не удалось определить account_id для запроса транзакций")
         account_id = self._account_ids[0]
         data = await self._request("GET", f"/v1/accounts/{account_id}/transactions")
         return TransactionsRespDTO.model_validate(data)

@@ -34,14 +34,17 @@ def configure_logging(cfg: LoggerConfig) -> None:
         # structlog.stdlib.render_to_log_kwargs,
         structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
     )
-    logging_processors = (structlog.stdlib.ProcessorFormatter.remove_processors_meta,)
+    logging_processors = (
+        structlog.stdlib.ProcessorFormatter.remove_processors_meta,)
     logging_console_processors = (
         *logging_processors,
-        get_render_processor(render_json_logs=cfg.RENDER_JSON_LOGS, colors=True),
+        get_render_processor(
+            render_json_logs=cfg.RENDER_JSON_LOGS, colors=True),
     )
     logging_file_processors = (
         *logging_processors,
-        get_render_processor(render_json_logs=cfg.RENDER_JSON_LOGS, colors=False),
+        get_render_processor(
+            render_json_logs=cfg.RENDER_JSON_LOGS, colors=False),
     )
 
     handler = logging.StreamHandler()

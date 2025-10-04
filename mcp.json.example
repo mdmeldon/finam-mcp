@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "finam": {
+      "command": "uvx",
+      "args": [
+        "git+ssh://git@github.com/mdmeldon/finam-mcp.git"
+      ],
+      "env": {
+        "FINAM_API_TOKEN": "ваш_api_токен_здесь",
+        "FINAM_ACCOUNT_ID": "ваш_account_id_здесь"
+      },
+      "description": "MCP server for Finam API - торговля и рыночные данные"
+    }
+  }
+}
+

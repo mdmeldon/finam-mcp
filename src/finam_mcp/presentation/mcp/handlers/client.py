@@ -1,7 +1,8 @@
 """
 Набор MCP-тулов, оборачивающих методы клиента Finam API.
 
-Важная ремарка: передаваемый в инструменты параметр api_token используется
+Важная ремарка: API токен и Account ID берутся из переменных окружения
+FINAM_API_TOKEN и FINAM_ACCOUNT_ID при запуске MCP сервера. API токен используется
 исключительно для получения короткоживущего JWT (≈15 минут), после чего все
 запросы выполняются с использованием этого JWT. Клиент автоматически обновляет
 JWT при ошибке 401 или около истечения срока.
@@ -42,6 +43,26 @@ from finam_mcp.application.dtos import (
     OrderBookRespDTO,
 )
 from finam_mcp.infrastructure.core.client import Client
+from finam_mcp.configs.server import FinamConfig
+
+# Глобальная конфигурация, инициализируется при загрузке модуля
+_config: Optional[FinamConfig] = None
+
+
+def init_config(config: FinamConfig) -> None:
+    """Инициализация конфигурации для handlers."""
+    global _config
+    _config = config
+
+
+def _get_config() -> FinamConfig:
+    """Получить текущую конфигурацию."""
+    if _config is None:
+        raise RuntimeError(
+            "Конфигурация Finam не инициализирована. "
+            "Убедитесь, что переменные окружения FINAM_API_TOKEN и FINAM_ACCOUNT_ID установлены."
+        )
+    return _config
 
 
 def _parse_dt(value: str) -> datetime.datetime:
@@ -73,10 +94,12 @@ def _parse_leg(leg: Dict[str, Any]) -> LegDTO:
 
 
 @asynccontextmanager
-async def _build_client(api_token: str):
+async def _build_client():
+    """Создать клиент используя конфигурацию из окружения."""
+    cfg = _get_config()
     session = aiohttp.ClientSession(base_url="https://api.finam.ru/")
     try:
-        yield Client(token=api_token, session=session)
+        yield Client(token=cfg.API_TOKEN, session=session)
     finally:
         await session.close()
 
@@ -85,16 +108,17 @@ async def _build_client(api_token: str):
 # Auth & tokens
 #
 
-async def finam_auth(api_token: str) -> AuthRespDTO:
-    """Получить JWT по API-токену."""
-    async with _build_client(api_token) as client:
+async def finam_auth() -> AuthRespDTO:
+    """Получить JWT по API-токену из конфигурации."""
+    async with _build_client() as client:
         token = await client.auth()
         return token
 
 
 async def finam_token_details(jwt_token: str) -> TokenDetailsDTO:
     """Получить сведения о JWT (включая expires_at)."""
-    async with _build_client("dummy") as client:
+    cfg = _get_config()
+    async with _build_client() as client:
         details = await client.token_details(jwt_token)
         return details
 
@@ -103,23 +127,25 @@ async def finam_token_details(jwt_token: str) -> TokenDetailsDTO:
 # Accounts & portfolio
 #
 
-async def get_account(api_token: str, account_id: str) -> AccountDTO:
-    """Информация по аккаунту."""
-    async with _build_client(api_token) as client:
-        resp = await client.get_account(account_id)
+async def get_account() -> AccountDTO:
+    """Информация по аккаунту из конфигурации."""
+    cfg = _get_config()
+    async with _build_client() as client:
+        resp = await client.get_account(cfg.ACCOUNT_ID)
         return resp
 
 
-async def trades(api_token: str, account_id: str, start_time: str, end_time: str) -> TradesRespDTO:
+async def trades(start_time: str, end_time: str) -> TradesRespDTO:
     """История сделок за интервал [start_time, end_time] (ISO8601)."""
-    async with _build_client(api_token) as client:
-        resp = await client.trades(account_id, _parse_dt(start_time), _parse_dt(end_time))
+    cfg = _get_config()
+    async with _build_client() as client:
+        resp = await client.trades(cfg.ACCOUNT_ID, _parse_dt(start_time), _parse_dt(end_time))
         return resp
 
 
-async def transactions(api_token: str) -> TransactionsRespDTO:
+async def transactions() -> TransactionsRespDTO:
     """Список транзакций первого доступного аккаунта из токена."""
-    async with _build_client(api_token) as client:
+    async with _build_client() as client:
         resp = await client.transactions()
         return resp
 
@@ -128,51 +154,53 @@ async def transactions(api_token: str) -> TransactionsRespDTO:
 # Reference data
 #
 
-async def assets(api_token: str) -> AssetsRespDTO:
+async def assets() -> AssetsRespDTO:
     """Список доступных инструментов."""
-    async with _build_client(api_token) as client:
+    async with _build_client() as client:
         resp = await client.assets()
         return resp
 
 
-async def clock(api_token: str) -> ClockDTO:
+async def clock() -> ClockDTO:
     """Время сервера."""
-    async with _build_client(api_token) as client:
+    async with _build_client() as client:
         resp = await client.clock()
         return resp
 
 
-async def exchanges(api_token: str) -> ExchangesRespDTO:
+async def exchanges() -> ExchangesRespDTO:
     """Список бирж."""
-    async with _build_client(api_token) as client:
+    async with _build_client() as client:
         resp = await client.exchanges()
         return resp
 
 
-async def get_asset(api_token: str, account_id: str, symbol: str) -> AssetDTO:
+async def get_asset(symbol: str) -> AssetDTO:
     """Информация по инструменту symbol."""
-    async with _build_client(api_token) as client:
-        resp = await client.get_asset(account_id, symbol)
+    cfg = _get_config()
+    async with _build_client() as client:
+        resp = await client.get_asset(cfg.ACCOUNT_ID, symbol)
         return resp
 
 
-async def get_asset_params(api_token: str, account_id: str, symbol: str) -> AssetParamsDTO:
+async def get_asset_params(symbol: str) -> AssetParamsDTO:
     """Торговые параметры инструмента symbol."""
-    async with _build_client(api_token) as client:
-        resp = await client.get_asset_params(account_id, symbol)
+    cfg = _get_config()
+    async with _build_client() as client:
+        resp = await client.get_asset_params(cfg.ACCOUNT_ID, symbol)
         return resp
 
 
-async def options_chain(api_token: str, underlying_symbol: str) -> OptionsChainDTO:
+async def options_chain(underlying_symbol: str) -> OptionsChainDTO:
     """Цепочка опционов по базовому активу."""
-    async with _build_client(api_token) as client:
+    async with _build_client() as client:
         resp = await client.options_chain(underlying_symbol)
         return resp
 
 
-async def schedule(api_token: str, symbol: str) -> SymbolScheduleDTO:
+async def schedule(symbol: str) -> SymbolScheduleDTO:
     """Расписание торгов по инструменту."""
-    async with _build_client(api_token) as client:
+    async with _build_client() as client:
         resp = await client.schedule(symbol)
         return resp
 
@@ -181,30 +209,31 @@ async def schedule(api_token: str, symbol: str) -> SymbolScheduleDTO:
 # Orders
 #
 
-async def cancel_order(api_token: str, account_id: str, order_id: str) -> OrderDTO:
+async def cancel_order(order_id: str) -> OrderDTO:
     """Отменить заявку."""
-    async with _build_client(api_token) as client:
-        resp = await client.cancel_order(account_id, order_id)
+    cfg = _get_config()
+    async with _build_client() as client:
+        resp = await client.cancel_order(cfg.ACCOUNT_ID, order_id)
         return resp
 
 
-async def get_order(api_token: str, account_id: str, order_id: str) -> OrderDTO:
+async def get_order(order_id: str) -> OrderDTO:
     """Получить заявку по id."""
-    async with _build_client(api_token) as client:
-        resp = await client.get_order(account_id, order_id)
+    cfg = _get_config()
+    async with _build_client() as client:
+        resp = await client.get_order(cfg.ACCOUNT_ID, order_id)
         return resp
 
 
-async def get_orders(api_token: str, account_id: str) -> GetOrdersDTO:
+async def get_orders() -> GetOrdersDTO:
     """Список заявок аккаунта."""
-    async with _build_client(api_token) as client:
-        resp = await client.get_orders(account_id)
+    cfg = _get_config()
+    async with _build_client() as client:
+        resp = await client.get_orders(cfg.ACCOUNT_ID)
         return resp
 
 
 async def place_order(
-    api_token: str,
-    account_id: str,
     symbol: str,
     quantity: str,
     side: str,
@@ -219,10 +248,11 @@ async def place_order(
     comment: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Выставить заявку. Строковые enum-параметры принимаются как имена (например, SIDE_BUY)."""
-    async with _build_client(api_token) as client:
+    cfg = _get_config()
+    async with _build_client() as client:
         leg_dto: Optional[LegDTO] = _parse_leg(legs) if legs else None
         resp = await client.place_order(
-            account_id=account_id,
+            account_id=cfg.ACCOUNT_ID,
             symbol=symbol,
             quantity=quantity,
             side=_parse_enum(Side, side),
@@ -230,10 +260,12 @@ async def place_order(
             time_in_force=_parse_enum(TimeInForce, time_in_force),
             limit_price=limit_price or "",
             stop_price=stop_price or "",
-            stop_condition=_parse_enum(StopCondition, stop_condition) if stop_condition else StopCondition.STOP_CONDITION_UNSPECIFIED,
+            stop_condition=_parse_enum(
+                StopCondition, stop_condition) if stop_condition else StopCondition.STOP_CONDITION_UNSPECIFIED,
             legs=leg_dto,  # type: ignore[arg-type]
             client_order_id=client_order_id or "",
-            valid_before=_parse_enum(ValidBefore, valid_before) if valid_before else ValidBefore.VALID_BEFORE_UNSPECIFIED,
+            valid_before=_parse_enum(
+                ValidBefore, valid_before) if valid_before else ValidBefore.VALID_BEFORE_UNSPECIFIED,
             comment=comment or "",
         )
         return resp
@@ -244,14 +276,13 @@ async def place_order(
 #
 
 async def bars(
-    api_token: str,
     symbol: str,
     start_time: str,
     end_time: str,
     timeframe: str,
 ) -> BarsRespDTO:
     """Исторические бары по инструменту. Даты — ISO8601, timeframe — имя enum TimeFrame."""
-    async with _build_client(api_token) as client:
+    async with _build_client() as client:
         resp = await client.bars(
             symbol=symbol,
             start_time=_parse_dt(start_time),
@@ -261,22 +292,22 @@ async def bars(
         return resp
 
 
-async def last_quote(api_token: str, symbol: str) -> LastQuoteDTO:
+async def last_quote(symbol: str) -> LastQuoteDTO:
     """Последняя котировка."""
-    async with _build_client(api_token) as client:
+    async with _build_client() as client:
         resp = await client.last_quote(symbol)
         return resp
 
 
-async def latest_trades(api_token: str, symbol: str) -> LatestTradesDTO:
+async def latest_trades(symbol: str) -> LatestTradesDTO:
     """Последние сделки."""
-    async with _build_client(api_token) as client:
+    async with _build_client() as client:
         resp = await client.latest_trades(symbol)
         return resp
 
 
-async def order_book(api_token: str, symbol: str) -> OrderBookRespDTO:
+async def order_book(symbol: str) -> OrderBookRespDTO:
     """Текущий стакан."""
-    async with _build_client(api_token) as client:
+    async with _build_client() as client:
         resp = await client.order_book(symbol)
         return resp
