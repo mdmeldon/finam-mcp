@@ -127,7 +127,7 @@ async def _build_client():
         await session.close()
 
 
-async def get_account() -> AccountDTO:
+async def get_account() -> OkResponse[AccountDTO]:
     """Получить сведения о счете из конфигурации MCP.
 
     Токен и `account_id` берутся из окружения. Параметры не требуются.
@@ -137,11 +137,11 @@ async def get_account() -> AccountDTO:
     """
     cfg = _get_config()
     async with _build_client() as client:
-        resp = await client.get_account(cfg.ACCOUNT_ID)
-        return resp
+        details = await client.get_account(cfg.ACCOUNT_ID)
+        return OkResponse(details=details, endpoint="https://api.finam.ru/v1/accounts/{account_id}", method="GET")
 
 
-async def trades(start_time: str, end_time: str, limit: int) -> TradesRespDTO:
+async def trades(start_time: str, end_time: str, limit: int) -> OkResponse[TradesRespDTO]:
     """История сделок за указанный период.
 
     :param start_time: Начало периода в ISO8601, например "2024-01-01T00:00:00Z"
@@ -151,18 +151,18 @@ async def trades(start_time: str, end_time: str, limit: int) -> TradesRespDTO:
     :param limit: Максимальное число записей (1..1000)
     :type limit: int
     :returns: Список сделок
-    :rtype: TradesRespDTO
+    :rtype: OkResponse[TradesRespDTO]
 
     Пример:
         trades("2024-01-01T00:00:00Z", "2024-01-31T23:59:59Z", limit=500)
     """
     cfg = _get_config()
     async with _build_client() as client:
-        resp = await client.trades(cfg.ACCOUNT_ID, _parse_dt(start_time), _parse_dt(end_time), limit=limit)
-        return resp
+        details = await client.trades(cfg.ACCOUNT_ID, _parse_dt(start_time), _parse_dt(end_time), limit=limit)
+        return OkResponse(details=details, endpoint="https://api.finam.ru/v1/accounts/{account_id}/trades", method="GET")
 
 
-async def transactions(start_time: str, end_time: str, limit: int) -> TransactionsRespDTO:
+async def transactions(start_time: str, end_time: str, limit: int) -> OkResponse[TransactionsRespDTO]:
     """Транзакции аккаунта за период (пополнения, выводы, комиссии и пр.).
 
     :param start_time: Начало периода в ISO8601
@@ -172,12 +172,12 @@ async def transactions(start_time: str, end_time: str, limit: int) -> Transactio
     :param limit: Максимальное число записей
     :type limit: int
     :returns: Список транзакций
-    :rtype: TransactionsRespDTO
+    :rtype: OkResponse[TransactionsRespDTO]
     """
     cfg = _get_config()
     async with _build_client() as client:
-        resp = await client.transactions(cfg.ACCOUNT_ID, _parse_dt(start_time), _parse_dt(end_time), limit=limit)
-        return resp
+        details = await client.transactions(cfg.ACCOUNT_ID, _parse_dt(start_time), _parse_dt(end_time), limit=limit)
+        return OkResponse(details=details, endpoint="https://api.finam.ru/v1/accounts/{account_id}/transactions", method="GET")
 
 
 #
