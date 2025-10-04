@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 [project.scripts]
-finam_mcp = "finam_mcp:main"
+finam_mcp = "finam_mcp.cli:main"
 
 [build-system]
 requires = ["hatchling"]
