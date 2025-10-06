@@ -26,6 +26,26 @@ MCP сервер для работы с Finam API - предоставляет 1
 }
 ```
 
+или  
+
+```json
+{
+  "mcpServers": {
+    "finam": {
+      "command": "uvx",
+      "args": [
+        "finam_mcp"
+      ],
+      "env": {
+        "FINAM_API_TOKEN": "ваш_api_токен_finam",
+        "FINAM_ACCOUNT_ID": "ваш_account_id"
+      },
+      "description": "MCP server for Finam API"
+    }
+  }
+}
+```
+
 **Важно:** Замените `ваш_api_токен_finam` на ваш реальный API токен от Finam, и `ваш_account_id` на ID вашего торгового счета.
 
 ### Локальная разработка
